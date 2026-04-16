@@ -254,6 +254,8 @@ else:
 return create_deep_agent(tools=tools, ...)
 ```
 
+> **Looking to connect enterprise data sources?** See the [Context Providers Guide](docs/context-providers.md) for step-by-step examples on adding Jira, Confluence, Postgres, Snowflake, Airflow, knowledge base (vector DB), and other context tools.
+
 ---
 
 ## 4. Triggers
