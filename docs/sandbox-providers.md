@@ -230,26 +230,20 @@ class ECSSandbox(BaseSandbox):
         return self._task_arn.rsplit("/", 1)[-1]
 
     def execute(self, command: str, *, timeout: int | None = None) -> ExecuteResponse:
-        """Execute a command in the ECS task via ECS Exec (SSM)."""
+        """Execute a command in the ECS task via ECS Exec (SSM).
+
+        NOTE: This is a skeleton — you must implement _run_ssm_command()
+        to stream output from the SSM session. See the "Production note
+        on ECS Exec" section below for concrete approaches.
+        """
         timeout = timeout or 300
         try:
-            response = self._ecs.execute_command(
-                cluster=self._cluster,
-                task=self._task_arn,
-                container=self._container_name,
-                interactive=False,
-                command=f"/bin/bash -c {command!r}",
-            )
-
-            # In a production implementation, you would use the SSM session
-            # to stream stdout/stderr. This is a simplified example.
-            # See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html
-            session_id = response["session"]["sessionId"]
-            output = self._poll_ssm_session(session_id, timeout)
-
+            # Wrap command to capture exit code reliably
+            wrapped = f'{command}\nEXIT_CODE=$?\necho "___EXIT:$EXIT_CODE"\nexit $EXIT_CODE'
+            output, exit_code = self._run_ssm_command(wrapped, timeout)
             return ExecuteResponse(
                 output=output,
-                exit_code=0,
+                exit_code=exit_code,
                 truncated=False,
             )
         except Exception as e:
@@ -259,13 +253,20 @@ class ECSSandbox(BaseSandbox):
                 truncated=False,
             )
 
-    def _poll_ssm_session(self, session_id: str, timeout: int) -> str:
-        """Poll SSM session for output. Replace with actual SSM session handling."""
-        # Production implementation: use the SSM session plugin or websocket
-        # to stream command output. This placeholder returns empty output.
+    def _run_ssm_command(self, command: str, timeout: int) -> tuple[str, int]:
+        """Run a command via ECS Exec and return (output, exit_code).
+
+        PLACEHOLDER — replace with your SSM session implementation.
+
+        Production options:
+        1. Use the session-manager-plugin to open a websocket session.
+        2. Run an HTTP command server inside the container instead.
+        3. SSH into the container's ENI IP.
+
+        See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html
+        """
         raise NotImplementedError(
-            "Implement SSM session output streaming. "
-            "See https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html"
+            "Implement _run_ssm_command() — see docstring for options."
         )
 
 
@@ -548,11 +549,13 @@ class KubernetesSandbox(BaseSandbox):
         """Execute a command inside the Kubernetes pod via exec."""
         timeout = timeout or 300
         try:
+            # Wrap command to capture the real exit code on the last line
+            wrapped = f'{command}\necho ""\necho "___EXIT_CODE:$?"'
             resp = stream(
                 self._api.connect_get_namespaced_pod_exec,
                 self._pod_name,
                 self._namespace,
-                command=["bash", "-c", command],
+                command=["bash", "-c", wrapped],
                 container="sandbox",
                 stderr=True,
                 stdout=True,
@@ -560,10 +563,19 @@ class KubernetesSandbox(BaseSandbox):
                 tty=False,
                 _request_timeout=timeout,
             )
-            # `stream()` returns combined stdout+stderr as a string
+            # Parse exit code from the last line
+            output = resp
+            exit_code = 0
+            if "___EXIT_CODE:" in output:
+                lines = output.rsplit("___EXIT_CODE:", 1)
+                output = lines[0]
+                try:
+                    exit_code = int(lines[1].strip())
+                except ValueError:
+                    pass
             return ExecuteResponse(
-                output=resp,
-                exit_code=0,
+                output=output,
+                exit_code=exit_code,
                 truncated=False,
             )
         except Exception as e:
