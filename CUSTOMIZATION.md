@@ -113,6 +113,8 @@ class MySandbox(BaseSandbox):
 
 See `deepagents.backends.LangSmithSandbox` and `agent/integrations/langsmith.py` for a full reference implementation.
 
+> **Looking for AWS ECS, Docker, Kubernetes, or other self-hosted providers?** See the [Sandbox Providers Guide](docs/sandbox-providers.md) for step-by-step implementation examples and production deployment guidance.
+
 ---
 
 ## 2. Model
@@ -251,6 +253,8 @@ else:
 
 return create_deep_agent(tools=tools, ...)
 ```
+
+> **Looking to connect enterprise data sources?** See the [Context Providers Guide](docs/context-providers.md) for step-by-step examples on adding Jira, Confluence, Postgres, Snowflake, Airflow, knowledge base (vector DB), and other context tools.
 
 ---
 

@@ -143,6 +143,9 @@ This is an area where you can extend Open SWE for your org: add deterministic CI
 
 - **[Installation Guide](INSTALLATION.md)** — GitHub App creation, LangSmith, Linear/Slack/GitHub triggers, and production deployment
 - **[Customization Guide](CUSTOMIZATION.md)** — swap the sandbox, model, tools, triggers, system prompt, and middleware for your org
+- **[Context Providers Guide](docs/context-providers.md)** — connect Jira, Confluence, Postgres, Snowflake, Airflow, knowledge bases, and other data sources as agent context
+- **[Sandbox Providers Guide](docs/sandbox-providers.md)** — use AWS ECS, Docker, Kubernetes, or any custom infrastructure as your agent sandbox
+- **[Software Engineering Agent Blueprint](docs/software-engineering-agent-blueprint.md)** — build and deploy a Jira-driven, multi-context engineering agent from ticket intake through PR review and production merge
 
 ## License
 
