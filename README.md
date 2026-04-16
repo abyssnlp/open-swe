@@ -143,6 +143,7 @@ This is an area where you can extend Open SWE for your org: add deterministic CI
 
 - **[Installation Guide](INSTALLATION.md)** — GitHub App creation, LangSmith, Linear/Slack/GitHub triggers, and production deployment
 - **[Customization Guide](CUSTOMIZATION.md)** — swap the sandbox, model, tools, triggers, system prompt, and middleware for your org
+- **[Software Engineering Agent Blueprint](docs/software-engineering-agent-blueprint.md)** — build and deploy a Jira-driven, multi-context engineering agent from ticket intake through PR review and production merge
 
 ## License
 
