@@ -399,7 +399,9 @@ def postgres_query(query: str, params: list | None = None) -> dict:
         with psycopg2.connect(POSTGRES_DSN) as conn:
             conn.set_session(readonly=True, autocommit=True)
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute(f"SET search_path TO {','.join(ALLOWED_SCHEMAS)}")
+                # Validate schema names against allowlist before setting search_path
+                safe_schemas = [s for s in ALLOWED_SCHEMAS if re.fullmatch(r"[a-zA-Z_][a-zA-Z0-9_]*", s)]
+                cur.execute(f"SET search_path TO {','.join(safe_schemas)}")
                 cur.execute(query, params or [])
                 columns = [desc[0] for desc in cur.description] if cur.description else []
                 rows = cur.fetchmany(MAX_ROWS)

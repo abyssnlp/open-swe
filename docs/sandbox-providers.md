@@ -239,7 +239,7 @@ class ECSSandbox(BaseSandbox):
         timeout = timeout or 300
         try:
             # Wrap command to capture exit code reliably
-            wrapped = f'{command}\nEXIT_CODE=$?\necho "___EXIT:$EXIT_CODE"\nexit $EXIT_CODE'
+            wrapped = f'{command}\nEXIT_CODE=$?\necho "___EXIT_CODE:$EXIT_CODE"\nexit $EXIT_CODE'
             output, exit_code = self._run_ssm_command(wrapped, timeout)
             return ExecuteResponse(
                 output=output,
