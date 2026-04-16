@@ -113,6 +113,8 @@ class MySandbox(BaseSandbox):
 
 See `deepagents.backends.LangSmithSandbox` and `agent/integrations/langsmith.py` for a full reference implementation.
 
+> **Looking for AWS ECS, Docker, Kubernetes, or other self-hosted providers?** See the [Sandbox Providers Guide](docs/sandbox-providers.md) for step-by-step implementation examples and production deployment guidance.
+
 ---
 
 ## 2. Model
